@@ -4,21 +4,16 @@ module Svg.Path exposing (..)
 type Path
     = JumpTo ( Float, Float ) Path
     | LineTo ( Float, Float ) Path
-    | Arc
+    | ArcTo
+        ( Float, Float )
         { radiusX : Float
         , radiusY : Float
         , rotation : Float
         , takeTheLongWay : Bool
         , clockwise : Bool
-        , to : ( Float, Float )
         }
         Path
-    | CustomTo
-        { to : ( Float, Float )
-        , name : String
-        , arguments : List String
-        }
-        Path
+    | Custom String Path
     | EndClosed
     | End
 
@@ -27,34 +22,63 @@ type alias PathBuilder =
     ( ( Float, Float ), Path -> Path )
 
 
-semicircle : { to : ( Float, Float ), clockwise : Bool } -> PathBuilder -> PathBuilder
-semicircle args ( ( x1, y1 ), fun ) =
+drawSemicircleTo : ( Float, Float ) -> { clockwise : Bool } -> PathBuilder -> PathBuilder
+drawSemicircleTo to args ( ( x1, y1 ), fun ) =
     let
         ( x2, y2 ) =
-            args.to
+            to
 
         distance =
             (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1) |> sqrt
     in
-    ( args.to
+    ( to
     , \path ->
         fun
-            (Arc
+            (ArcTo to
                 { radiusX = distance / 2
                 , radiusY = distance / 2
                 , rotation = 0
                 , takeTheLongWay = False
                 , clockwise = args.clockwise
-                , to = args.to
                 }
                 path
             )
     )
 
 
-startAt : ( Float, Float ) -> PathBuilder
-startAt pos =
-    ( pos, JumpTo pos )
+drawSemicircleBy : ( Float, Float ) -> { clockwise : Bool } -> PathBuilder -> PathBuilder
+drawSemicircleBy ( x, y ) args ( ( x0, y0 ), fun ) =
+    drawSemicircleTo ( x0 + x, y0 + y ) args ( ( x0, y0 ), fun )
+
+
+drawArcTo :
+    ( Float, Float )
+    ->
+        { radiusX : Float
+        , radiusY : Float
+        , rotation : Float
+        , takeTheLongWay : Bool
+        , clockwise : Bool
+        }
+    -> PathBuilder
+    -> PathBuilder
+drawArcTo to args ( _, fun ) =
+    ( to, \path -> fun (ArcTo to args path) )
+
+
+drawArcBy :
+    ( Float, Float )
+    ->
+        { radiusX : Float
+        , radiusY : Float
+        , rotation : Float
+        , takeTheLongWay : Bool
+        , clockwise : Bool
+        }
+    -> PathBuilder
+    -> PathBuilder
+drawArcBy ( x, y ) args ( ( x0, y0 ), fun ) =
+    drawArcTo ( x0 + x, y0 + y ) args ( ( x0, y0 ), fun )
 
 
 jumpTo : ( Float, Float ) -> PathBuilder -> PathBuilder
@@ -62,20 +86,33 @@ jumpTo pos ( _, fun ) =
     ( pos, \path -> fun (JumpTo pos path) )
 
 
-lineTo : ( Float, Float ) -> PathBuilder -> PathBuilder
-lineTo pos ( _, fun ) =
+jumpBy : ( Float, Float ) -> PathBuilder -> PathBuilder
+jumpBy ( x, y ) ( ( x0, y0 ), fun ) =
+    jumpTo ( x0 + x, y0 + y ) ( ( x0, y0 ), fun )
+
+
+drawLineTo : ( Float, Float ) -> PathBuilder -> PathBuilder
+drawLineTo pos ( _, fun ) =
     ( pos, \path -> fun (LineTo pos path) )
 
 
+drawLineBy : ( Float, Float ) -> PathBuilder -> PathBuilder
+drawLineBy ( x, y ) ( ( x0, y0 ), fun ) =
+    drawLineTo ( x0 + x, y0 + y ) ( ( x0, y0 ), fun )
+
+
+startAt : ( Float, Float ) -> PathBuilder
+startAt pos =
+    ( pos, JumpTo pos )
+
+
 custom :
-    { to : ( Float, Float )
-    , name : String
-    , arguments : List String
-    }
+    (( Float, Float ) -> ( ( Float, Float ), String ))
     -> PathBuilder
     -> PathBuilder
-custom args ( _, fun ) =
-    ( args.to, \path -> fun (CustomTo args path) )
+custom customFun ( from, fun ) =
+    customFun from
+        |> Tuple.mapSecond (\string -> \path -> fun (Custom string path))
 
 
 endClosed : PathBuilder -> Path
@@ -111,52 +148,37 @@ toString p0 =
                         :: output
                         |> rec p
 
-                Arc arc p ->
+                ArcTo ( toX, toY ) args p ->
                     ("A"
-                        ++ String.fromFloat arc.radiusX
+                        ++ String.fromFloat args.radiusX
                         ++ " "
-                        ++ String.fromFloat arc.radiusY
+                        ++ String.fromFloat args.radiusY
                         ++ " "
-                        ++ String.fromFloat arc.rotation
+                        ++ String.fromFloat args.rotation
                         ++ " "
-                        ++ (if arc.takeTheLongWay then
+                        ++ (if args.takeTheLongWay then
                                 "1"
 
                             else
                                 "0"
                            )
                         ++ " "
-                        ++ (if arc.clockwise then
+                        ++ (if args.clockwise then
                                 "1"
 
                             else
                                 "0"
                            )
-                        ++ (arc.to
-                                |> (\( toX, toY ) ->
-                                        String.fromFloat toX
-                                            ++ " "
-                                            ++ String.fromFloat toY
-                                   )
+                        ++ (String.fromFloat toX
+                                ++ " "
+                                ++ String.fromFloat toY
                            )
                     )
                         :: output
                         |> rec p
 
-                CustomTo args p ->
-                    ((args.name
-                        :: args.arguments
-                        |> String.join " "
-                     )
-                        ++ " "
-                        ++ (args.to
-                                |> (\( toX, toY ) ->
-                                        String.fromFloat toX
-                                            ++ " "
-                                            ++ String.fromFloat toY
-                                   )
-                           )
-                    )
+                Custom string p ->
+                    string
                         :: output
                         |> rec p
 
