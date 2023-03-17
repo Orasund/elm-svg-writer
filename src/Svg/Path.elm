@@ -22,6 +22,53 @@ type alias PathBuilder =
     ( ( Float, Float ), Path -> Path )
 
 
+drawCircleArcTo :
+    ( Float, Float )
+    ->
+        { angle : Float
+        , takeTheLongWay : Bool
+        , clockwise : Bool
+        }
+    -> PathBuilder
+    -> PathBuilder
+drawCircleArcTo ( x, y ) args ( ( x0, y0 ), fun ) =
+    let
+        distance =
+            (x - x0)
+                * (x - x0)
+                |> (+) ((y - y0) * (y - y0))
+                |> sqrt
+
+        angle2 =
+            (pi - args.angle) / 2
+
+        --Law of sins
+        radius =
+            sin angle2 * distance / sin args.angle
+    in
+    drawArcTo ( x, y )
+        { radiusX = radius
+        , radiusY = radius
+        , rotation = 0
+        , takeTheLongWay = args.takeTheLongWay
+        , clockwise = args.clockwise
+        }
+        ( ( x0, y0 ), fun )
+
+
+drawCircleArcBy :
+    ( Float, Float )
+    ->
+        { angle : Float
+        , takeTheLongWay : Bool
+        , clockwise : Bool
+        }
+    -> PathBuilder
+    -> PathBuilder
+drawCircleArcBy ( x, y ) args ( ( x0, y0 ), fun ) =
+    drawCircleArcTo ( x0 + x, y0 + y ) args ( ( x0, y0 ), fun )
+
+
 drawSemicircleTo : ( Float, Float ) -> { clockwise : Bool } -> PathBuilder -> PathBuilder
 drawSemicircleTo to args ( ( x1, y1 ), fun ) =
     let
