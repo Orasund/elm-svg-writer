@@ -5,6 +5,7 @@ module Svg.Writer exposing
     , withFillColor, withNoFillColor
     , withStrokeColor, withStrokeWidth, withNoStrokeColor
     , withMask
+    , withCustomAttribute
     , toString, toHtml, toDataURI
     , Program, toProgram
     , withAttribute
