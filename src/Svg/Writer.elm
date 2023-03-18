@@ -259,7 +259,7 @@ toString args list =
                                )
                             ++ "</"
                             ++ node.name
-                            ++ ">"
+                            ++ ">\n"
                    )
     in
     "<svg version=\"1.1\" width=\""
