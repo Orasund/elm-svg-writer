@@ -137,7 +137,11 @@ drawCircleArcTo ( x, y ) args ( ( x0, y0 ), fun ) =
 
         --Law of sins
         radius =
-            sin angle2 * distance / sin args.angle
+            if args.angle == pi then
+                distance / 2
+
+            else
+                sin angle2 * distance / sin args.angle
     in
     drawArcTo ( x, y )
         { radiusX = radius

@@ -5,9 +5,9 @@ module Svg.Writer exposing
     , withFillColor, withNoFillColor
     , withStrokeColor, withStrokeWidth, withNoStrokeColor
     , withMask
-    , withAttribute
     , toString, toHtml, toDataURI
     , Program, toProgram
+    , withAttribute
     )
 
 {-|
@@ -27,7 +27,7 @@ module Svg.Writer exposing
 @docs withFillColor, withNoFillColor
 @docs withStrokeColor, withStrokeWidth, withNoStrokeColor
 @docs withMask
-@docs withAttribute
+@docs withCustomAttribute
 
 
 # Conversion
@@ -38,6 +38,11 @@ module Svg.Writer exposing
 # Interactive Viewer
 
 @docs Program, toProgram
+
+
+# Deprecated
+
+@docs withAttribute
 
 -}
 
@@ -155,11 +160,21 @@ withStrokeWidth strokeWidth =
     withAttribute ( "stroke-width", String.fromFloat strokeWidth )
 
 
-{-| add a attribute
+{-| @Deprecated
+
+Use `withCustomAttribute` instead.
+
 -}
 withAttribute : ( String, String ) -> SvgNode -> SvgNode
-withAttribute attr (SvgNode svgNode) =
-    { svgNode | attributes = attr :: svgNode.attributes }
+withAttribute ( name, value ) =
+    withCustomAttribute name value
+
+
+{-| add a attribute
+-}
+withCustomAttribute : String -> String -> SvgNode -> SvgNode
+withCustomAttribute name value (SvgNode svgNode) =
+    { svgNode | attributes = ( name, value ) :: svgNode.attributes }
         |> SvgNode
 
 
@@ -285,6 +300,9 @@ toDataURI args list =
 
                             '"' ->
                                 "%22"
+
+                            '#' ->
+                                "%23"
 
                             '\n' ->
                                 ""
