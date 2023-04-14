@@ -1,7 +1,7 @@
 module Svg.Writer exposing
     ( SvgNode(..), circle, rectangle, path
     , define, defineMask, use
-    , group
+    , group, custom
     , withFillColor, withNoFillColor
     , withStrokeColor, withStrokeWidth, withNoStrokeColor
     , withMask
@@ -20,7 +20,7 @@ module Svg.Writer exposing
 
 @docs define, defineMask, use
 
-@docs group
+@docs group, custom
 
 
 # Attributes
@@ -66,6 +66,13 @@ type SvgNode
         , attributes : List ( String, String )
         , content : List SvgNode
         }
+
+
+{-| Custom node
+-}
+custom : String -> List SvgNode -> SvgNode
+custom name list =
+    SvgNode { name = name, attributes = [], content = list }
 
 
 {-| group nodes to apply styling to all nodes at once.
