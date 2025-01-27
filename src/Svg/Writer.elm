@@ -52,7 +52,6 @@ import File.Download
 import Html exposing (Attribute, Html)
 import Html.Attributes
 import Html.Events
-import Svg.Path exposing (Path)
 
 
 {-| A Svg Node.
@@ -188,11 +187,11 @@ withCustomAttribute name value (SvgNode svgNode) =
 
 {-| turn a path into a svg node.
 -}
-path : Path -> SvgNode
-path p =
+path : String -> SvgNode
+path d =
     SvgNode
         { name = "path"
-        , attributes = [ ( "d", Svg.Path.toString p ) ]
+        , attributes = [ ( "d", d ) ]
         , content = []
         }
 
