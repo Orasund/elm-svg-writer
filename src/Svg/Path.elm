@@ -167,7 +167,7 @@ cubicBezierCurveTo ( x, y ) args =
     , String.fromFloat x
     , String.fromFloat y
     ]
-        |> String.join ""
+        |> String.join " "
 
 
 {-| -}
@@ -194,7 +194,7 @@ relativeCubicBezierCurveTo ( x, y ) args =
     , String.fromFloat x
     , String.fromFloat y
     ]
-        |> String.join ""
+        |> String.join " "
 
 
 {-| -}
@@ -215,7 +215,7 @@ smoothCubicBezierCurveTo ( x, y ) args =
     , String.fromFloat x
     , String.fromFloat y
     ]
-        |> String.join ""
+        |> String.join " "
 
 
 {-| -}
@@ -236,7 +236,7 @@ relativeSmoothCubicBezierCurveTo ( x, y ) args =
     , String.fromFloat x
     , String.fromFloat y
     ]
-        |> String.join ""
+        |> String.join " "
 
 
 {-| -}
@@ -257,7 +257,7 @@ quadraticBezierCurveTo ( x, y ) args =
     , String.fromFloat x
     , String.fromFloat y
     ]
-        |> String.join ""
+        |> String.join " "
 
 
 {-| -}
@@ -278,7 +278,7 @@ relativeQuadraticBezierCurveTo ( x, y ) args =
     , String.fromFloat x
     , String.fromFloat y
     ]
-        |> String.join ""
+        |> String.join " "
 
 
 {-| -}
@@ -288,7 +288,7 @@ curveTo ( x, y ) =
     , String.fromFloat x
     , String.fromFloat y
     ]
-        |> String.join ""
+        |> String.join " "
 
 
 {-| -}
@@ -298,7 +298,7 @@ relativeCurveTo ( x, y ) =
     , String.fromFloat x
     , String.fromFloat y
     ]
-        |> String.join ""
+        |> String.join " "
 
 
 {-| -}
